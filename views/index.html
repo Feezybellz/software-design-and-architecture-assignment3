@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Online Electronics Store</title>
+  </head>
+  <body>
+    <h1>Product Catalog</h1>
+    <div id="products"></div>
+
+    <script>
+      fetch("/api/products")
+        .then((res) => res.json())
+        .then((products) => {
+          const container = document.getElementById("products");
+          products.forEach((p) => {
+            container.innerHTML += `
+            <div>
+              <h3>${p.name}</h3>
+              <p>${p.description}</p>
+              <p>₦${p.price}</p>
+              <button onclick="addToCart('${p._id}')">Add to Cart</button>
+            </div>
+          `;
+          });
+        });
+
+      function addToCart(productId) {
+        // Simulate cart add; In practice, send POST request to backend
+        alert("Product " + productId + " added to cart.");
+      }
+    </script>
+  </body>
+</html>

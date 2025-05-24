@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Checkout</title>
+  </head>
+  <body>
+    <h1>Checkout</h1>
+    <form action="/api/orders" method="POST">
+      <label>Full Name:</label><br />
+      <input name="name" required /><br />
+
+      <label>Address:</label><br />
+      <input name="address" required /><br />
+
+      <label>Payment Method:</label><br />
+      <select name="paymentMethod">
+        <option value="cash">Cash on Delivery</option>
+        <option value="card">Card</option></select
+      ><br /><br />
+
+      <button type="submit">Place Order</button>
+    </form>
+  </body>
+</html>
