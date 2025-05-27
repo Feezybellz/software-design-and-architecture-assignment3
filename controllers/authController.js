@@ -31,6 +31,13 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      sameSite: 'Lax',
+      path: '/'
+  });
     res.json({ message: "Login successful", token, role: user.role });
   } catch (err) {
     res.status(500).json({ error: "Login failed" });

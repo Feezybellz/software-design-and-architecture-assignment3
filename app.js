@@ -5,6 +5,8 @@ const session = require("express-session");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path"); 
+const cookieParser = require('cookie-parser');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +26,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(
   session({
     secret: "your-secret-key",

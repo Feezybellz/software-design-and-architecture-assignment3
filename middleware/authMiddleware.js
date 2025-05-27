@@ -18,7 +18,7 @@ exports.verifyAdmin = (req, res, next) => {
 };
 
 exports.verifyAdminCookies = (req, res, next) => {
-  const token = req.cookies?.token || "";
+  const token = req.cookies.token || "";
   if (!token) return res.status(403).json({ error: "Access denied" });
 
   try {
