@@ -176,7 +176,7 @@
           <div style="text-align: center; width: 100%;">
             <h3>${p.name}</h3>
             <p>${p.description}</p>
-            <p>${p.price.toFixed(2)}</p>
+            <p>$ ${p.price.toFixed(2)}</p>
             <button style="margin: auto;" class="btn btn-primary d-flex" onclick="addToCart('${p._id}')">
               Add to Cart
             </button>
@@ -233,8 +233,9 @@
         
         if (result.isConfirmed) {
           Swal.fire({
-            title: result.status,
-            text: result.message
+            icon: result.value.status == "success" ? "success" : "error",
+            title: result.value.status,
+            text: result.value.message
           });
         }
       });
