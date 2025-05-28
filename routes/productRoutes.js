@@ -1,12 +1,16 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const productController = require("../controllers/productController");
+const productController = require('../controllers/productController');
+const { authorizeAdmin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
 
-// GET /api/products
-router.get("/", productController.getAllProducts);
+// POST /api/products - Add a new product
+router.post('/', authorizeAdmin, upload.single('product_image'), productController.addProduct);
 
-// POST /api/products
-router.post('/', upload.single('product_image'), productController.addProduct);
+// PUT /api/products/:productId - Edit an existing product
+router.put('/:productId', authorizeAdmin, upload.single('product_image'), productController.editProduct);
+
+// GET /api/products - Get all products (public)
+router.get('/', productController.getAllProducts);
 
 module.exports = router;
