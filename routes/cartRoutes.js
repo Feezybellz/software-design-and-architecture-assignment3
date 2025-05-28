@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const { verifyUser } = require("../middleware/authMiddleware");
 const Product = require("../models/product");
+const cartController = require("../controllers/cartControllers");
 
 // Initialize cart in session if not present
 function initCart(req) {
@@ -15,33 +17,37 @@ router.get("/", (req, res) => {
   res.json(req.session.cart);
 });
 
+router.post("/add", verifyUser, cartController.addToCart);
+
+router.get("/get", verifyUser, cartController.getCart);
+
 // POST /api/cart/add - Add to cart
-router.post("/add", async (req, res) => {
-  initCart(req);
-  const { productId, quantity } = req.body;
-  try {
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ error: "Product not found" });
+// router.post("/add", async (req, res) => {
+//   initCart(req);
+//   const { productId, quantity } = req.body;
+//   try {
+//     const product = await Product.findById(productId);
+//     if (!product) return res.status(404).json({ error: "Product not found" });
 
-    const existing = req.session.cart.find(
-      (item) => item.productId === productId
-    );
-    if (existing) {
-      existing.quantity += parseInt(quantity);
-    } else {
-      req.session.cart.push({
-        productId,
-        name: product.name,
-        price: product.price,
-        quantity,
-      });
-    }
+//     const existing = req.session.cart.find(
+//       (item) => item.productId === productId
+//     );
+//     if (existing) {
+//       existing.quantity += parseInt(quantity);
+//     } else {
+//       req.session.cart.push({
+//         productId,
+//         name: product.name,
+//         price: product.price,
+//         quantity,
+//       });
+//     }
 
-    res.json({ message: "Product added to cart", cart: req.session.cart });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to add to cart" });
-  }
-});
+//     res.json({ message: "Product added to cart", cart: req.session.cart });
+//   } catch (err) {
+//     res.status(500).json({ error: "Failed to add to cart" });
+//   }
+// });
 
 // POST /api/cart/remove - Remove from cart
 router.post("/remove", (req, res) => {

@@ -43,3 +43,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "Login failed" });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  res.status(201).json({ message: "Forgot password functionality not implemented yet" });
+};
