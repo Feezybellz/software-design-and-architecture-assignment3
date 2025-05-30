@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Products</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+        integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3">
+            <div class="col-md-3 mb-md-0">
+                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                    <img src="/images/logo.png" style="width: 80px;" alt="">
+                </a>
+            </div>
+            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/admin/dashboard" class="nav-link px-2">Dashboard</a></li>
+                <li><a href="/admin/orders" class="nav-link px-2">Orders</a></li>
+                <li><a href="/admin/products" class="nav-link px-2 link-secondary">Products</a></li>
+                <li><a href="/admin/statistics" class="nav-link px-2">Statistics</a></li>
+            </ul>
+            <div class="col-md-3 text-end">
+                <button type="button" class="btn btn-outline-primary me-2" onclick="logout()">Logout</button>
+            </div>
+        </header>
+    </div>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Manage Products</h4>
+                <button class="btn btn-primary" onclick="openProductModal()">
+                    <i class="bx bx-plus"></i> Add New Product
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Products will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="productIdInput">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productPrice" class="form-label">Price</label>
+                            <input type="number" class="form-control" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productStock" class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="productStock" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">Product Image</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="imagePreview" src="" alt="Product Preview" style="width: 100px; height: 100px; object-fit: cover; display: none;" class="border rounded">
+                                <div>
+                                    <input type="hidden" class="form-control mb-2" id="productImage" placeholder="Image URL">
+                                    <small class="text-muted">Or upload a new image:</small>
+                                    <input type="file" class="form-control" id="productImageFile" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="productDescription" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let productModal;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            productModal = new bootstrap.Modal(document.getElementById('productModal'));
+            fetchProducts();
+        });
+
+        function fetchProducts() {
+            fetch('/api/products')
+                .then(response => response.json())
+                .then(products => {
+                    const tbody = document.getElementById('productsTableBody');
+                    tbody.innerHTML = '';
+
+                    products.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><img src="${product.image_url}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+                            <td>${product.name}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td>${product.stock}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editProduct('${product._id}')">
+                                    <i class="bx bx-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')">
+                                    <i class="bx bx-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Failed to fetch products', 'error');
+                });
+        }
+
+        function openProductModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('productIdInput').value = '';
+            productModal.show();
+        }
+
+        function editProduct(productId) {
+            fetch(`/api/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('modalTitle').textContent = 'Edit Product';
+                    document.getElementById('productIdInput').value = product._id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productImage').value = product.image_url;
+                    document.getElementById('productDescription').value = product.description;
+                    
+                    // Show image preview if URL exists
+                    const imagePreview = document.getElementById('imagePreview');
+                    if (product.image_url) {
+                        imagePreview.src = product.image_url;
+                        imagePreview.style.display = 'block';
+                    } else {
+                        imagePreview.style.display = 'none';
+                    }
+                    
+                    productModal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Failed to fetch product details', 'error');
+                });
+        }
+
+        // Add image preview functionality
+        document.getElementById('productImage').addEventListener('input', function(e) {
+            const imagePreview = document.getElementById('imagePreview');
+            if (e.target.value) {
+                imagePreview.src = e.target.value;
+                imagePreview.style.display = 'block';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        document.getElementById('productImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function saveProduct() {
+            const productId = document.getElementById('productIdInput').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value
+            };
+
+            // Handle image upload
+            const imageFile = document.getElementById('productImageFile').files[0];
+            const imageUrl = document.getElementById('productImage').value;
+
+            if (imageFile) {
+                // If a new file is uploaded, use FormData
+                const formData = new FormData();
+                formData.append('product_image', imageFile);
+                Object.keys(productData).forEach(key => {
+                    formData.append(key, productData[key]);
+                });
+
+                const method = productId ? 'PUT' : 'POST';
+                const url = productId ? `/api/products/${productId}` : '/api/products';
+
+                fetch(url, {
+                    method: method,
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    productModal.hide();
+                    Swal.fire('Success', `Product ${productId ? 'updated' : 'added'} successfully`, 'success');
+                    fetchProducts();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', `Failed to ${productId ? 'update' : 'add'} product`, 'error');
+                });
+            } else {
+                // If no new file, use the URL
+                productData.image_url = imageUrl;
+
+                const method = productId ? 'PUT' : 'POST';
+                const url = productId ? `/api/products/${productId}` : '/api/products';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    productModal.hide();
+                    Swal.fire('Success', `Product ${productId ? 'updated' : 'added'} successfully`, 'success');
+                    fetchProducts();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', `Failed to ${productId ? 'update' : 'add'} product`, 'error');
+                });
+            }
+        }
+
+        function deleteProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/products/${productId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.fire('Deleted!', 'Product has been deleted.', 'success');
+                        fetchProducts();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Failed to delete product', 'error');
+                    });
+                }
+            });
+        }
+
+        function logout() {
+            fetch('/api/auth/logout', {
+                method: 'POST'
+            })
+            .then(() => {
+                window.location.href = '/login';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Failed to logout', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,9 +1,8 @@
 const Order = require("../models/order");
-const Product = require("../models/product");
 
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("items.productId");
+    const orders = await Order.find();
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve orders" });
@@ -39,3 +38,28 @@ exports.getSalesReport = async (req, res) => {
     res.status(500).json({ error: "Failed to generate report" });
   }
 };
+
+exports.updateOrderStatus = async (req, res) => {
+  const orderId = req.params.orderId;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Status is required" });
+  }
+
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json({ message: "Order status updated successfully", order: updatedOrder });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update order status", details: err.message });
+  }
+}

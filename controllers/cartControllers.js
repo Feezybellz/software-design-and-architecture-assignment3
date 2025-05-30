@@ -1,5 +1,4 @@
 const Cart = require("../models/cart");
-const cartController = require("../controllers/cartControllers");
 
 exports.addToCart = async (req, res) => {
     try {

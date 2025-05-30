@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { verifyUser } = require("../middleware/authMiddleware");
+const { authenticate } = require("../middleware/authMiddleware");
 const Product = require("../models/product");
 const cartController = require("../controllers/cartControllers");
 
@@ -17,9 +17,9 @@ router.get("/", (req, res) => {
   res.json(req.session.cart);
 });
 
-router.post("/add", verifyUser, cartController.addToCart);
+router.post("/add", authenticate, cartController.addToCart);
 
-router.get("/get", verifyUser, cartController.getCart);
+router.get("/get", authenticate, cartController.getCart);
 
 // POST /api/cart/add - Add to cart
 // router.post("/add", async (req, res) => {

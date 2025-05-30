@@ -11,6 +11,10 @@ router.post('/', authorizeAdmin, upload.single('product_image'), productControll
 router.put('/:productId', authorizeAdmin, upload.single('product_image'), productController.editProduct);
 
 // GET /api/products - Get all products (public)
-router.get('/', productController.getAllProducts);
+router.get('/', authorizeAdmin, productController.getAllProducts);
+
+router.get('/:productId', authorizeAdmin, productController.getProduct);
+
+router.delete('/:productId', authorizeAdmin, productController.deleteProduct);
 
 module.exports = router;

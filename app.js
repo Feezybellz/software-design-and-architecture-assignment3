@@ -67,6 +67,14 @@ app.get("/cart", (req, res) => {
   res.sendFile(__dirname + "/views/cart.html");
 });
 
+app.get("/orders", (req, res) => {
+  res.sendFile(__dirname + "/views/order.html");
+})
+
+app.get("/orders/:orderId", (req, res) => {
+  res.sendFile(__dirname + "/views/view-order.html");
+})
+
 app.get("/checkout", (req, res) => {
   res.sendFile(__dirname + "/views/checkout.html");
 });

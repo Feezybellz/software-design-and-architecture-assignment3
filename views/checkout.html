@@ -386,7 +386,7 @@
           </div> <!-- end col -->
           <div class="col">
             <div class="text-end mt-2 mt-sm-0">
-              <a href="#" class="btn btn-success">
+              <a onclick="newOrder()" href="#" class="btn btn-success">
                 <i class="mdi mdi-cart-outline me-1"></i> Procced </a>
             </div>
           </div> <!-- end col -->
@@ -490,6 +490,68 @@
 
 
     });
+
+    function newOrder (){
+      event.preventDefault();
+      if (cartBody.innerHTML.trim() === '') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Your cart is empty!'
+        });
+        return;
+      }
+      const billingName = document.querySelector("#billing-name").value;
+      const billingEmailAddress = document.querySelector("#billing-email-address").value;
+      const billingPhone = document.querySelector("#billing-phone").value;
+      const billingAddress = document.querySelector("#billing-address").value;
+      const billingCountry = document.querySelector("#billing-country").value;
+      const billingCity = document.querySelector("#billing-city").value;
+      const zipCode = document.querySelector("#zip-code").value;
+
+      if (!billingName || !billingEmailAddress || !billingPhone || !billingAddress || !billingCountry || !billingCity || !zipCode) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please fill all the fields!'
+        });
+        return;
+      }
+
+      fetch('api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          billingName,
+          billingEmailAddress,
+          billingPhone,
+          billingAddress,
+          billingCountry,
+          billingCity,
+          zipCode
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Order placed successfully!',
+              text: `Your order ID is ${data.orderId}`
+            }).then(() => {
+              window.location.href = '/orders';
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.error
+            });
+          }
+        });
+    }
   </script>
 
 </html>

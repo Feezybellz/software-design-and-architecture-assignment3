@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+        integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css"
+        integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<style>
+    .project-list-table {
+        border-collapse: separate;
+        border-spacing: 0 12px
+    }
+
+    .project-list-table tr {
+        background-color: #fff
+    }
+
+    .table-nowrap td,
+    .table-nowrap th {
+        white-space: nowrap;
+    }
+
+    .table-borderless>:not(caption)>*>* {
+        border-bottom-width: 0;
+    }
+
+    .table>:not(caption)>*>* {
+        padding: 0.75rem 0.75rem;
+        background-color: var(--bs-table-bg);
+        border-bottom-width: 1px;
+        box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+    }
+
+    .avatar-sm {
+        height: 2rem;
+        width: 2rem;
+    }
+
+    .rounded-circle {
+        border-radius: 50% !important;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem !important;
+    }
+
+    img,
+    svg {
+        vertical-align: middle;
+    }
+
+    a {
+        color: #3b76e1;
+        text-decoration: none;
+    }
+
+    .badge-soft-danger {
+        color: #f56e6e !important;
+        background-color: rgba(245, 110, 110, .1);
+    }
+
+    .badge-soft-success {
+        color: #63ad6f !important;
+        background-color: rgba(99, 173, 111, .1);
+    }
+
+    .badge-soft-primary {
+        color: #3b76e1 !important;
+        background-color: rgba(59, 118, 225, .1);
+    }
+
+    .badge-soft-info {
+        color: #57c9eb !important;
+        background-color: rgba(87, 201, 235, .1);
+    }
+
+    .avatar-title {
+        align-items: center;
+        background-color: #3b76e1;
+        color: #fff;
+        display: flex;
+        font-weight: 500;
+        height: 100%;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .bg-soft-primary {
+        background-color: rgba(59, 118, 225, .25) !important;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3">
+            <div class="col-md-3 mb-md-0">
+                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                    <img src="/images/logo.png" style="width: 80px;" alt="">
+                    <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+            </div>
+            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/" class="nav-link px-2 link-secondary">Home</a></li>
+                <li><a href="/cart" class="nav-link px-2">Cart</a></li>
+                <li><a href="/orders" class="nav-link px-2">Orders</a></li>
+            </ul>
+            <div class="col-md-3 text-end">
+                <a href="/login"></a><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
+                <a href="/register"><button type="button" class="btn btn-primary">Register</button></a>
+            </div>
+        </header>
+    </div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <h5 class="card-title">Orders</h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="">
+                    <div class="table-responsive">
+                        <table class="table project-list-table table-nowrap align-middle table-borderless">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Order Amount</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" style="width: 200px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+    crossorigin="anonymous"></script>
+
+    <script>
+
+        function statusStyle(orderStatus){
+            switch (orderStatus) {
+                case 'Pending':
+                    return 'badge-soft-info';
+                case 'Processing':
+                    return 'badge-soft-info';
+                case 'Shipped':
+                    return 'badge-soft-success';
+                case 'Delivered':
+                    return 'badge-soft-success';
+                case 'Cancelled':
+                    return 'badge-soft-danger';
+                default:
+                    return 'badge-soft-primary';
+            }
+        }
+
+        function fetchAndRenderOrders() {
+            fetch('/api/orders', {
+                "method": "GET",
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('.project-list-table tbody');
+                    tableBody.innerHTML = '';
+                    data.forEach(order => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <th>${order._id}</th>
+                            <th>$ ${order.total}</th>
+                            <td><span class="badge ${statusStyle(order.status)} mb-0">${order.status}</span></td>
+                            <td>
+                                <ul class="list-inline mb-0">
+                                    <li class="list-inline-item">
+                                                <a href="/orders/${order._id}" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="View Order" class="px-2 text-primary"><svg  xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
+                                                    fill="currentColor" viewBox="0 0 24 24" >
+                                                    <!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                                                    <path d="M12 5c-7.63 0-9.93 6.62-9.95 6.68-.07.21-.07.43 0 .63.02.07 2.32 6.68 9.95 6.68s9.93-6.62 9.95-6.68c.07-.21.07-.43 0-.63C21.93 11.61 19.63 5 12 5m0 12c-5.35 0-7.42-3.84-7.93-5 .5-1.16 2.58-5 7.93-5s7.42 3.85 7.93 5c-.5 1.16-2.58 5-7.93 5"></path><path d="M13.5 12c-.83 0-1.5-.67-1.5-1.5 0-.6.36-1.12.87-1.35-.28-.09-.56-.15-.87-.15-1.64 0-3 1.36-3 3s1.36 3 3 3 3-1.36 3-3c0-.3-.06-.59-.15-.87-.24.51-.75.87-1.35.87"></path>
+                                                    </svg></a>
+                                            </li>
+                                </ul>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching orders:', error));
+        }
+
+        fetchAndRenderOrders();
+    </script>
+
+</html>
