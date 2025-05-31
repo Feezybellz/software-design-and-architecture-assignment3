@@ -3,8 +3,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
   try {
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    const role = req.body.role || "user"; // Default to 'user' if not provided
+
     const existing = await User.findOne({ email });
     if (existing)
       return res.status(400).json({ error: "Email already exists" });
@@ -31,13 +36,13 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: false,
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      sameSite: 'Lax',
-      path: '/'
-  });
+      sameSite: "Lax",
+      path: "/",
+    });
     res.json({ message: "Login successful", token, role: user.role });
   } catch (err) {
     res.status(500).json({ error: "Login failed" });
@@ -45,12 +50,14 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie("token");
   res.json({ message: "Logout successful" });
 };
 
 exports.forgotPassword = async (req, res) => {
-  res.status(201).json({ message: "Forgot password functionality not implemented yet" });
+  res
+    .status(201)
+    .json({ message: "Forgot password functionality not implemented yet" });
 };
 
 exports.checkLoginStatus = async (req, res) => {
@@ -67,13 +74,13 @@ exports.checkLoginStatus = async (req, res) => {
       return res.json({ isLoggedIn: false });
     }
 
-    res.json({ 
+    res.json({
       isLoggedIn: true,
       user: {
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     res.json({ isLoggedIn: false });
