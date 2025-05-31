@@ -123,3 +123,28 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Failed to delete product", details: err.message });
   }
 }
+
+exports.reduceStock = async (productId, quantity) => {
+  try {
+    const result = await Product.findOneAndUpdate(
+      { 
+        _id: productId,
+        stock: { $gte: quantity }
+      },
+      { 
+        $inc: { stock: -quantity }
+      },
+      { 
+        new: true
+      }
+    );
+
+    if (!result) {
+      throw new Error('Insufficient stock');
+    }
+
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};

@@ -11,7 +11,11 @@ const authenticate = async (req, res, next) => {
     // const token = authHeader.replace('Bearer ', '');
 
     if (!token) {
-      return res.status(401).json({ error: 'Authentication failed: No token provided.' });
+      // Check if the request is for an HTML page
+      if (req.accepts('html')) {
+        return res.redirect('/login');
+      }
+      return res.status(401).json({ error: 'User not Authenticated, Go back to login ' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -19,6 +23,10 @@ const authenticate = async (req, res, next) => {
     const user = await User.findById(decoded.id || decoded._id); 
 
     if (!user) {
+      // Check if the request is for an HTML page
+      if (req.accepts('html')) {
+        return res.redirect('/login');
+      }
       return res.status(401).json({ error: 'Authentication failed: User not found.' });
     }
 
@@ -32,7 +40,12 @@ const authenticate = async (req, res, next) => {
     } else if (error.name === 'TokenExpiredError') {
         errorMessage = 'Authentication failed: Token expired.';
     } else if (error.message.includes('No token provided')) {
-        errorMessage = error.message; // Use specific message if already set
+        errorMessage = error.message;
+    }
+    
+    // Check if the request is for an HTML page
+    if (req.accepts('html')) {
+      return res.redirect('/login');
     }
     res.status(401).json({ error: errorMessage, details: error.message });
   }
@@ -44,11 +57,18 @@ const authorizeAdmin = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
       next();
     } else if (!req.user) {
-       if (!res.headersSent) {
-            return res.status(401).json({ error: 'Authentication required.' });
-       }
-    }
-    else {
+      // Check if the request is for an HTML page
+      if (req.accepts('html')) {
+        return res.redirect('/login');
+      }
+      if (!res.headersSent) {
+        return res.status(401).json({ error: 'Authentication required.' });
+      }
+    } else {
+      // Check if the request is for an HTML page
+      if (req.accepts('html')) {
+        return res.redirect('/');
+      }
       return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
   });

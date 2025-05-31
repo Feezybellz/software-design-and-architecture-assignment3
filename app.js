@@ -18,6 +18,7 @@ const authRoutes = require("./routes/authRoutes");
 // const adminRoutes = require("./routes/adminRoutes");
 const { adminRoutes, adminViewRoutes } = require("./routes/adminRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const { authenticate } = require("./middleware/authMiddleware");
 
 // Initialize express app
 const app = express();
@@ -63,19 +64,19 @@ app.get("/", (req, res) => {
 //   res.sendFile(__dirname + "/views/admin.html");
 // });
 
-app.get("/cart", (req, res) => {
+app.get("/cart", authenticate , (req, res) => {
   res.sendFile(__dirname + "/views/cart.html");
 });
 
-app.get("/orders", (req, res) => {
+app.get("/orders", authenticate, (req, res) => {
   res.sendFile(__dirname + "/views/order.html");
 })
 
-app.get("/orders/:orderId", (req, res) => {
+app.get("/orders/:orderId", authenticate ,(req, res) => {
   res.sendFile(__dirname + "/views/view-order.html");
 })
 
-app.get("/checkout", (req, res) => {
+app.get("/checkout", authenticate, (req, res) => {
   res.sendFile(__dirname + "/views/checkout.html");
 });
 

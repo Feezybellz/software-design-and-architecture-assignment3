@@ -23,8 +23,14 @@
         <li><a href="/orders" class="nav-link px-2">Orders</a></li>
       </ul>
       <div class="col-md-3 text-end">
-        <a href="/login"></a><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
-        <a href="/register"><button type="button" class="btn btn-primary">Register</button></a>
+        <div id="authButtons">
+          <a href="/login"><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
+          <a href="/register"><button type="button" class="btn btn-primary">Register</button></a>
+        </div>
+        <div id="userInfo" style="display: none;">
+          <span id="userName" class="me-2"></span>
+          <button type="button" class="btn btn-outline-danger" onclick="logout()">Logout</button>
+        </div>
       </div>
     </header>
   </div>
@@ -159,6 +165,51 @@
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
     crossorigin="anonymous"></script>
   <script>
+    // Check login status on page load
+    fetch('/api/auth/login-status')
+      .then(response => response.json())
+      .then(data => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        
+        if (data.isLoggedIn) {
+          authButtons.style.display = 'none';
+          userInfo.style.display = 'block';
+          userName.textContent = data.user.name;
+          
+          // Show appropriate navigation
+          const userNav = document.getElementById('userNav');
+          const adminNav = document.getElementById('adminNav');
+          
+          if (data.user.role === 'admin') {
+            if (adminNav) adminNav.style.display = 'block';
+            if (userNav) userNav.style.display = 'none';
+          } else {
+            if (userNav) userNav.style.display = 'block';
+            if (adminNav) adminNav.style.display = 'none';
+          }
+        } else {
+          authButtons.style.display = 'block';
+          userInfo.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        console.error('Error checking login status:', error);
+      });
+
+    function logout() {
+      fetch('/api/auth/logout', {
+        method: 'POST'
+      })
+      .then(() => {
+        window.location.href = "/login";
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+    }
+
     fetch("/api/products")
       .then((res) => res.json())
       .then((products) => {
@@ -196,49 +247,66 @@
         });
         return;
       }
-      Swal.fire({
-        title: "Enter Quantity",
-        input: "number",
-        showCancelButton: true,
-        confirmButtonText: "Add",
-        showLoaderOnConfirm: true,
-        preConfirm: async (quantity) => {
-          if (!quantity || quantity <= 0) {
-            Swal.showValidationMessage("Please enter a valid quantity.");
-            return;
-          }
-          try {
-            const response = await fetch(`/api/cart/add`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({ item, quantity })
-            });
-            if (!response.ok) {
-              return Swal.showValidationMessage(`
-                  ${JSON.stringify(await response.json())}
-                `);
-            }
-            return response.json();
-          } catch (error) {
-            Swal.showValidationMessage(`
-                Request failed: ${error}
-              `);
-          }
-        },
-        allowOutsideClick: () => !Swal.isLoading()
-      }).then((result) => {
-        console.log(result);
-        
-        if (result.isConfirmed) {
+
+      // First fetch product details to show available stock
+      fetch(`/api/products/${productId}`)
+        .then(res => res.json())
+        .then(product => {
           Swal.fire({
-            icon: result.value.status == "success" ? "success" : "error",
-            title: result.value.status,
-            text: result.value.message
+            title: "Enter Quantity",
+            input: "number",
+            inputLabel: `Available stock: ${product.stock}`,
+            inputAttributes: {
+              min: 1,
+              max: product.stock
+            },
+            showCancelButton: true,
+            confirmButtonText: "Add",
+            showLoaderOnConfirm: true,
+            preConfirm: async (quantity) => {
+              if (!quantity || quantity <= 0) {
+                Swal.showValidationMessage("Please enter a valid quantity.");
+                return;
+              }
+              if (quantity > product.stock) {
+                Swal.showValidationMessage(`Only ${product.stock} items available in stock.`);
+                return;
+              }
+              try {
+                const response = await fetch(`/api/cart/add`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ item, quantity })
+                });
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  return Swal.showValidationMessage(errorData.message);
+                }
+                return response.json();
+              } catch (error) {
+                Swal.showValidationMessage(`Request failed: ${error}`);
+              }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then((result) => {
+            if (result.isConfirmed) {
+              Swal.fire({
+                icon: result.value.status === "success" ? "success" : "error",
+                title: result.value.status,
+                text: result.value.message
+              });
+            }
           });
-        }
-      });
+        })
+        .catch(error => {
+          Swal.fire({
+            title: "Error",
+            text: "Failed to fetch product details.",
+            icon: "error"
+          });
+        });
     }
   </script>
 </body>

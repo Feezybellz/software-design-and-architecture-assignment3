@@ -1,6 +1,8 @@
 const Order = require("../models/order");
 const { getCartItems, getCartTotalPrice, clearCart } = require("../utils/cartUtils");
 const Delivery = require('../models/delivery');
+const Product = require("../models/product");
+const { reduceStock } = require("./productController");
 
 exports.createOrder = async (req, res) => {
   const {
@@ -36,6 +38,18 @@ exports.createOrder = async (req, res) => {
     const items = await getCartItems(req.user._id);
     if (!items || items.length === 0) {
       return res.status(400).json({ error: "Cart is empty. Cannot place order." });
+    }
+
+    // First, verify stock availability and reduce stock
+    for (const item of items) {
+      try {
+        await reduceStock(item.item._id, item.quantity);
+      } catch (error) {
+        return res.status(400).json({ 
+          error: "Stock update failed", 
+          details: `Insufficient stock for product: ${item.item.name}` 
+        });
+      }
     }
 
     cartItems = items.map(item => ({

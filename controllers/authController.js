@@ -44,6 +44,38 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.logout = (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: "Logout successful" });
+};
+
 exports.forgotPassword = async (req, res) => {
   res.status(201).json({ message: "Forgot password functionality not implemented yet" });
+};
+
+exports.checkLoginStatus = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.json({ isLoggedIn: false });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id || decoded._id);
+
+    if (!user) {
+      return res.json({ isLoggedIn: false });
+    }
+
+    res.json({ 
+      isLoggedIn: true,
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.json({ isLoggedIn: false });
+  }
 };
