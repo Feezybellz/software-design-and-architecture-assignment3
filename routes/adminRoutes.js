@@ -2,14 +2,24 @@ const express = require("express");
 const adminAPIRouter = express.Router();
 const adminViewRouter = express.Router();
 const adminController = require("../controllers/adminController");
-const {
-  authorizeAdmin,
-} = require("../middleware/authMiddleware");
+const { authorizeAdmin } = require("../middleware/authMiddleware");
 
 adminAPIRouter.get("/orders", authorizeAdmin, adminController.getAllOrders);
 adminAPIRouter.get("/report", authorizeAdmin, adminController.getSalesReport);
-adminAPIRouter.get("/statistics", authorizeAdmin, adminController.getOrderStatistics);
-adminAPIRouter.patch("/orders/:orderId/status", authorizeAdmin, adminController.updateOrderStatus);
+adminAPIRouter.get(
+  "/statistics",
+  authorizeAdmin,
+  adminController.getOrderStatistics
+);
+adminAPIRouter.patch(
+  "/orders/:orderId/status",
+  authorizeAdmin,
+  adminController.updateOrderStatus
+);
+
+adminViewRouter.get("/register", (req, res) => {
+  res.sendFile("admin-register.html", { root: "./views" });
+});
 
 adminViewRouter.get("/", authorizeAdmin, (req, res) => {
   res.sendFile("admin.html", { root: "./views" });

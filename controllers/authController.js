@@ -2,23 +2,52 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-exports.register = async (req, res) => {
+exports.adminRegister = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     if (!name || !email || !password) {
       return res.status(400).json({ error: "All fields are required" });
     }
-    const role = req.body.role || "user"; // Default to 'user' if not provided
+    const role = "admin";
 
     const existing = await User.findOne({ email });
-    if (existing)
+
+    if (existing) {
       return res.status(400).json({ error: "Email already exists" });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = new User({ name, email, passwordHash, role });
     await user.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
+    console.log(err);
+
+    res.status(500).json({ error: "Registration failed" });
+  }
+};
+
+exports.register = async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    const role = "customer";
+
+    const existing = await User.findOne({ email });
+
+    if (existing) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, passwordHash, role });
+    await user.save();
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (err) {
+    console.log(err);
+
     res.status(500).json({ error: "Registration failed" });
   }
 };

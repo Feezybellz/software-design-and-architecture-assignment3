@@ -22,16 +22,9 @@
         <li><a href="/cart" class="nav-link px-2">Cart</a></li>
         <li><a href="/orders" class="nav-link px-2">Orders</a></li>
       </ul>
-      <div class="col-md-3 text-end">
-        <div id="authButtons">
-          <a href="/login"><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
-          <a href="/register"><button type="button" class="btn btn-primary">Register</button></a>
-        </div>
-        <div id="userInfo" style="display: none;">
-          <span id="userName" class="me-2"></span>
-          <button type="button" class="btn btn-outline-danger" onclick="logout()">Logout</button>
-        </div>
-      </div>
+      
+      <auth-buttons></auth-buttons>
+      
     </header>
   </div>
 
@@ -164,6 +157,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
     crossorigin="anonymous"></script>
+    <script src="/js/elements.js"></script>
   <script>
     // Check login status on page load
     fetch('/api/auth/login-status')

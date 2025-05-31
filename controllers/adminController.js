@@ -25,8 +25,10 @@ exports.getOrderStatistics = async (req, res) => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const recentOrders = await Order.find({
-      createdAt: { $gte: sevenDaysAgo }
-    }).sort({ createdAt: -1 }).limit(5);
+      createdAt: { $gte: sevenDaysAgo },
+    })
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     // Calculate average order value
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -38,10 +40,12 @@ exports.getOrderStatistics = async (req, res) => {
       cancelledOrders,
       deliveredOrders,
       averageOrderValue,
-      recentOrders
+      recentOrders,
     });
   } catch (err) {
-    res.status(500).json({ error: "Failed to generate statistics", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to generate statistics", details: err.message });
   }
 };
 
@@ -101,8 +105,13 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    res.json({ message: "Order status updated successfully", order: updatedOrder });
+    res.json({
+      message: "Order status updated successfully",
+      order: updatedOrder,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Failed to update order status", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to update order status", details: err.message });
   }
-}
+};

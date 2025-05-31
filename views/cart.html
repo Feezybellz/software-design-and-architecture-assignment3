@@ -80,10 +80,9 @@
         <li><a href="/cart" class="nav-link px-2">Cart</a></li>
         <li><a href="/orders" class="nav-link px-2">Orders</a></li>
       </ul>
-      <div class="col-md-3 text-end">
-        <a href="/login"></a><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
-        <a href="/register"><button type="button" class="btn btn-primary">Register</button></a>
-      </div>
+      
+      <auth-buttons></auth-buttons>
+
     </header>
   </div>
 
@@ -126,14 +125,49 @@
 
 </body>
 
+<script src="/js/elements.js"></script>
+
 <script>
   const cartBody = document.querySelector("#cartBody");
   let cartTotalAmount = 0;
 
+  
+  fetch('/api/auth/login-status')
+      .then(response => response.json())
+      .then(data => {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        
+        if (data.isLoggedIn) {
+          authButtons.style.display = 'none';
+          userInfo.style.display = 'block';
+          userName.textContent = data.user.name;
+          
+          // Show appropriate navigation
+          const userNav = document.getElementById('userNav');
+          const adminNav = document.getElementById('adminNav');
+          
+          if (data.user.role === 'admin') {
+            if (adminNav) adminNav.style.display = 'block';
+            if (userNav) userNav.style.display = 'none';
+          } else {
+            if (userNav) userNav.style.display = 'block';
+            if (adminNav) adminNav.style.display = 'none';
+          }
+        } else {
+          authButtons.style.display = 'block';
+          userInfo.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        console.error('Error checking login status:', error);
+      });
+
   fetch('api/cart/get')
     .then(res => res.json())
     .then(data => {
-      if (data.length === 0) {
+      if (data.data.length === 0) {
         cartBody.innerHTML = `<div class="text-center my-5">
           <h3>Your cart is empty</h3>
           <p><a href="/products" class="btn btn-primary">Browse products</a></p>
