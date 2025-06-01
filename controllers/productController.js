@@ -16,6 +16,25 @@ exports.addProduct = async (req, res) => {
   console.log(req.file);
   const imageUrl = req.file_path ? req.file_path : null;
 
+  if (name.trim("").length < 1) {
+    return res.status(400).json({ error: "Product name is required" });
+  }
+
+  if (isNaN(price) || price <= 0) {
+    return res
+      .status(400)
+      .json({ error: "Product price must be a positive number" });
+  }
+  if (isNaN(stock) || stock < 0) {
+    return res
+      .status(400)
+      .json({ error: "Product stock must be a non-negative number" });
+  }
+
+  if (!sku || sku.trim().length < 1) {
+    return res.status(400).json({ error: "Product SKU is required" });
+  }
+
   try {
     const product = new Product({
       name,
@@ -44,6 +63,33 @@ exports.editProduct = async (req, res) => {
   try {
     const { productId } = req.params;
     const updateData = req.body;
+
+    if (updateData.name && updateData.name.trim().length < 1) {
+      return res.status(400).json({ error: "Product name is required" });
+    }
+
+    if (
+      updateData.price &&
+      (isNaN(updateData.price) || updateData.price <= 0)
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Product price must be a positive number" });
+    }
+
+    if (updateData.stock && (isNaN(updateData.stock) || updateData.stock < 0)) {
+      return res
+        .status(400)
+        .json({ error: "Product stock must be a non-negative number" });
+    }
+
+    if (
+      updateData.sku &&
+      (!updateData.sku || updateData.sku.trim().length < 1)
+    ) {
+      return res.status(400).json({ error: "Product SKU is required" });
+    }
+    // If no fields are provided for update, return an error
 
     let product = await Product.findById(productId);
     if (!product) {
